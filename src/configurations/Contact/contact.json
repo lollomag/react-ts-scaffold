@@ -1,0 +1,33 @@
+{
+  "formInputs": [
+    {
+      "key": "email",
+      "component": "input",
+      "inputType": "email",
+      "label": "Email",
+      "placeholder": "Inserisci email",
+      "required": true
+    },
+    {
+      "key": "password",
+      "component": "input",
+      "inputType": "password",
+      "label": "Password",
+      "placeholder": "Inserisci password",
+      "required": true
+    },
+    {
+      "key": "age",
+      "component": "select",
+      "label": "Età",
+      "placeholder": "Seleziona età"
+    },
+    {
+      "key": "note",
+      "component": "input",
+      "inputType": "text",
+      "label": "Note",
+      "placeholder": "Inserisci una nota"
+    }
+  ]
+}
