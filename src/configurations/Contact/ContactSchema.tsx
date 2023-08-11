@@ -1,23 +1,20 @@
-import { literal, object, string, z } from 'zod';
+import { boolean, literal, object, string, z } from 'zod';
 
 
 export const registerSchema = object({
   name: string()
-    .nonempty('Name is required')
-    .max(32, 'Name must be less than 100 characters'),
-  email: string().nonempty('Email is required').email('Email is invalid'),
+    .nonempty('Campo obbligatorio')
+    .max(32, 'Name must be less than 32 characters'),
+  email: string().nonempty('Campo obbligatorio').email('Formato email non corretta'),
   gender: string({
-    invalid_type_error: 'Gender is required'
+    invalid_type_error: 'Campo obbligatorio'
   }),
-  age: string().nonempty('Age is required'),
   password: string()
-    .nonempty('Password is required')
-    .min(8, 'Password must be more than 8 characters')
-    .max(32, 'Password must be less than 32 characters'),
-  passwordConfirm: string().nonempty('Please confirm your password'),
-  terms: literal(true, {
-    invalid_type_error: 'Accept Terms is required',
-  }),
+    .nonempty('Campo obbligatorio')
+    .min(4, 'Password must be more than 4 characters')
+    .max(16, 'Password must be less than 16 characters'),
+  passwordConfirm: string().nonempty('Confermare la password'),
+  terms: boolean().refine(val => val === true, {message: 'Accettazione obbligatoria'}),
 }).refine((data) => data.password === data.passwordConfirm, {
   path: ['passwordConfirm'],
   message: 'Passwords do not match',

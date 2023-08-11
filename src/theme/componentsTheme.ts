@@ -25,6 +25,24 @@ export const componentsTheme = (palette: any) => {
           },
         },
       },
+      MuiCheckbox: {
+        styleOverrides: {
+          root: {
+            '& svg': {
+              fill: palette.text.primary
+            }
+          },
+        },
+      },
+      MuiRadio: {
+        styleOverrides: {
+          root: {
+            '& svg': {
+              fill: palette.text.primary
+            }
+          },
+        },
+      },
     },
   };
 };

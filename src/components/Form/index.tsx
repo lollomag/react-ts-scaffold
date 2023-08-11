@@ -1,21 +1,24 @@
-import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, SelectChangeEvent, TextField, Typography } from "@mui/material";
+import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, Grid, InputLabel, MenuItem, Radio, RadioGroup, Select, SelectChangeEvent, TextField, Typography } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from "react";
+import ButtonCmp from "@components/ButtonCmp/ButtonCmp";
 
 interface FormCmpInterface {
+  title?: string;
   formInputs?: any;
   formSchema?: any;
   onFormSubmit?: (formObject: any) => void;
 }
 
-const FormCmp: React.FC<FormCmpInterface> = ({ formInputs, formSchema, onFormSubmit }) => {
-  const [loading, setLoading] = useState(false);
+const FormCmp: React.FC<FormCmpInterface> = ({ title, formInputs, formSchema, onFormSubmit }) => {
   const [object, setObject] = useState<any>('');
 
   const handleChange = (id: string, event: SelectChangeEvent) => {
+    console.log('target', event.target.value);
+
     setValue(id, event.target.value, { shouldValidate: true })
   };
 
@@ -52,123 +55,92 @@ const FormCmp: React.FC<FormCmpInterface> = ({ formInputs, formSchema, onFormSub
   console.log('errors', errors);
 
   return (
-    <Box sx={{ maxWidth: '30rem' }}>
-      <Typography variant='h4' component='h1' sx={{ mb: '2rem' }}>
-        Register
-      </Typography>
+    <Box>
+      {title &&
+        <Typography variant='h4' component='h1' sx={{ mb: '2rem' }}>{title}</Typography>
+      }
       <Box
         component='form'
         noValidate
         autoComplete='off'
         onSubmit={handleSubmit(onSubmitHandler)}
       >
-        <TextField
-          sx={{ mb: 2 }}
-          label='Name'
-          fullWidth
-          required
-          error={!!errors['name']}
-          helperText={`${errors['name'] ? errors['name'].message : ''}`}
-          {...register('name')}
-        />
-        <TextField
-          sx={{ mb: 2 }}
-          label='Email'
-          fullWidth
-          required
-          type='email'
-          error={!!errors['email']}
-          helperText={`${errors['email'] ? errors['email'].message : ''}`}
-          {...register('email')}
-        />
-        <FormControl required sx={{ mb: 2 }} error={!!errors['gender']} {...register('gender')}>
-          <FormLabel id="demo-radio-buttons-group-label" sx={{color: 'white'}}>Gender</FormLabel>
-          <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            name="radio-buttons-group"
-            onChange={(event) => handleChange('gender', event)}
-          >
-            <FormControlLabel value="female" control={<Radio />} label="Female" />
-            <FormControlLabel value="male" control={<Radio />} label="Male" />
-            <FormControlLabel value="other" control={<Radio />} label="Other" />
-          </RadioGroup>
-          {errors && errors['gender'] && <FormHelperText>{`${errors['gender'].message}`}</FormHelperText>}
-        </FormControl>
-        <FormControl required fullWidth sx={{ mb: 2 }} error={!!errors['age']} {...register('age')}>
-          <InputLabel id="demo-simple-select-label">Age</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={object && object['age']}
-            label="Age"
-            onChange={(event) => handleChange('age', event)}
-          >
-            <MenuItem value={'10'}>Ten</MenuItem>
-            <MenuItem value={'20'}>Twenty</MenuItem>
-            <MenuItem value={'30'}>Thirty</MenuItem>
-          </Select>
-          {errors && errors['age'] && <FormHelperText>{`${errors['age'].message}`}</FormHelperText>}
-        </FormControl>
-        <FormControl fullWidth sx={{ mb: 2 }} error={!!errors['height']} {...register('height')}>
-          <InputLabel id="demo-simple-select-label">Height</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={object && object['height']}
-            label="Height"
-            onChange={(event) => handleChange('height', event)}
-          >
-            <MenuItem value={'10'}>10</MenuItem>
-            <MenuItem value={'20'}>20</MenuItem>
-            <MenuItem value={'30'}>30</MenuItem>
-          </Select>
-          {errors && errors['height'] && <FormHelperText>{`${errors['height'].message}`}</FormHelperText>}
-        </FormControl>
-        <TextField
-          sx={{ mb: 2 }}
-          label='Password'
-          fullWidth
-          required
-          type='password'
-          error={!!errors['password']}
-          helperText={`${errors['password'] ? errors['password'].message : ''}`}
-          {...register('password')}
-        />
-        <TextField
-          sx={{ mb: 2 }}
-          label='Confirm Password'
-          fullWidth
-          required
-          type='password'
-          error={!!errors['passwordConfirm']}
-          helperText={`${errors['passwordConfirm'] ? errors['passwordConfirm'].message : ''}`}
-          {...register('passwordConfirm')}
-        />
+        <Grid container spacing={2} sx={{ mt: 0 }}>
+          {formInputs.map((input: any) => {
+            switch (input.component) {
+              case 'input':
+                return <Grid item xs={4}>
+                  <TextField
+                    sx={{ mb: 2 }}
+                    label={input.label}
+                    fullWidth
+                    required={input.required}
+                    type={input.inputType}
+                    error={!!errors[input.key]}
+                    helperText={`${errors[input.key] ? errors[input.key]?.message : ''}`}
+                    {...register(input.key)}
+                  />
+                </Grid>
+              case 'select':
+                return <Grid item xs={4}>
+                  <FormControl required={input.required} fullWidth sx={{ mb: 2 }} error={!!errors[input.key]} {...register(input.key)}>
+                    <InputLabel id="demo-simple-select-label">{input.label}</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={object && object[input.key]}
+                      label={input.label}
+                      onChange={(event) => handleChange(input.key, event)}
+                    >
+                      {input.options.map((option: { value: string, label: string }) => (
+                        <MenuItem value={option.value}>{option.label}</MenuItem>
+                      ))}
+                    </Select>
+                    {errors && errors[input.key] && <FormHelperText>{`${errors[input.key]?.message}`}</FormHelperText>}
+                  </FormControl>
+                </Grid>
+              case 'radio':
+                return <Grid item xs={4}>
+                  <FormControl required={input.required} sx={{ mb: 2 }} error={!!errors[input.key]}>
+                    <FormLabel id="demo-radio-buttons-group-label" sx={{ color: 'white' }}>{input.label}</FormLabel>
+                    <RadioGroup
+                      aria-labelledby="demo-radio-buttons-group-label"
+                      name="radio-buttons-group"
+                      onChange={(event) => handleChange(input.key, event)}
+                      row
+                    >
+                      {input.options.map((option: { value: string, label: string }) => (
+                        <FormControlLabel {...register(input.key)} value={option.value} control={<Radio />} label={option.label} />
+                      ))}
+                    </RadioGroup>
+                    {errors && errors[input.key] && <FormHelperText>{`${errors[input.key]?.message}`}</FormHelperText>}
+                  </FormControl>
+                </Grid>
+              case 'checkbox':
+                return <Grid item xs={4}>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={<Checkbox required={input.required} />}
+                      {...register(input.key)}
+                      label={
+                        <Typography color={errors[input.key] ? 'error' : 'inherit'}>
+                          {input.label}
+                        </Typography>
+                      }
+                    />
+                    <FormHelperText error={!!errors[input.key]}>
+                      {`${errors[input.key] ? errors[input.key]?.message : ''}`}
+                    </FormHelperText>
+                  </FormGroup>
+                </Grid>
 
-        <FormGroup>
-          <FormControlLabel
-            control={<Checkbox required />}
-            {...register('terms')}
-            label={
-              <Typography color={errors['terms'] ? 'error' : 'inherit'}>
-                Accept Terms and Conditions
-              </Typography>
+              default:
+                break;
             }
-          />
-          <FormHelperText error={!!errors['terms']}>
-            {`${errors['terms'] ? errors['terms'].message : ''}`}
-          </FormHelperText>
-        </FormGroup>
+          })}
+        </Grid>
 
-        <LoadingButton
-          variant='contained'
-          fullWidth
-          type='submit'
-          loading={loading}
-          sx={{ py: '0.8rem', mt: '1rem' }}
-        >
-          Register
-        </LoadingButton>
+        <ButtonCmp title="Invia" type="submit" />
       </Box>
     </Box>
   );

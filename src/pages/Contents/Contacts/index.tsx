@@ -13,7 +13,7 @@ const Contacts = () => {
   return (
     <>
       <Container maxWidth="xl">
-        <Typography variant="h3" component="h1">Accedi</Typography>
+        <Typography variant="h3" component="h1">Form validation</Typography>
         <FormCmp 
           formInputs={ContactConfiguration.formInputs}
           formSchema={registerSchema}
