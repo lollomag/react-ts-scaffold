@@ -1,4 +1,4 @@
-import { boolean, literal, object, string, z } from 'zod';
+import { boolean, date, literal, number, object, string, z } from 'zod';
 
 
 export const registerSchema = object({
@@ -9,6 +9,9 @@ export const registerSchema = object({
   gender: string({
     invalid_type_error: 'Campo obbligatorio'
   }),
+  // birthday: number({
+  //   required_error: 'Campo obbligatorio',
+  // }),
   password: string()
     .nonempty('Campo obbligatorio')
     .min(4, 'Password must be more than 4 characters')

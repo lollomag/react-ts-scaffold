@@ -5,6 +5,10 @@ import { TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from "react";
 import ButtonCmp from "@components/ButtonCmp/ButtonCmp";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 interface FormCmpInterface {
   title?: string;
@@ -17,9 +21,11 @@ const FormCmp: React.FC<FormCmpInterface> = ({ title, formInputs, formSchema, on
   const [object, setObject] = useState<any>('');
 
   const handleChange = (id: string, event: SelectChangeEvent) => {
-    console.log('target', event.target.value);
+    console.log('target', event);
 
-    setValue(id, event.target.value, { shouldValidate: true })
+    const value = event.target ? event.target.value : event;
+
+    setValue(id, value, { shouldValidate: true })
   };
 
   type formInput = TypeOf<typeof formSchema>;
@@ -37,7 +43,7 @@ const FormCmp: React.FC<FormCmpInterface> = ({ title, formInputs, formSchema, on
 
 
   watch((object) => {
-    console.log('popop', object);
+    console.log('oggetto in costruzione -->', object);
     setObject(object)
   })
 
@@ -52,7 +58,7 @@ const FormCmp: React.FC<FormCmpInterface> = ({ title, formInputs, formSchema, on
   const onSubmitHandler: SubmitHandler<formInput> = (values) => {
     onFormSubmit && onFormSubmit(values)
   };
-  console.log('errors', errors);
+  console.log('errors -->', errors);
 
   return (
     <Box>
@@ -65,7 +71,7 @@ const FormCmp: React.FC<FormCmpInterface> = ({ title, formInputs, formSchema, on
         autoComplete='off'
         onSubmit={handleSubmit(onSubmitHandler)}
       >
-        <Grid container spacing={2} sx={{ mt: 0 }}>
+        <Grid container spacing={2} sx={{ mt: 0, mb: 3 }}>
           {formInputs.map((input: any) => {
             switch (input.component) {
               case 'input':
@@ -110,7 +116,7 @@ const FormCmp: React.FC<FormCmpInterface> = ({ title, formInputs, formSchema, on
                       row
                     >
                       {input.options.map((option: { value: string, label: string }) => (
-                        <FormControlLabel {...register(input.key)} value={option.value} control={<Radio />} label={option.label} />
+                        <FormControlLabel {...register(input.key)} value={option.value} control={<Radio checked={object && object[input.key] === option.value}/>} label={option.label} />
                       ))}
                     </RadioGroup>
                     {errors && errors[input.key] && <FormHelperText>{`${errors[input.key]?.message}`}</FormHelperText>}
@@ -120,7 +126,7 @@ const FormCmp: React.FC<FormCmpInterface> = ({ title, formInputs, formSchema, on
                 return <Grid item xs={4}>
                   <FormGroup>
                     <FormControlLabel
-                      control={<Checkbox required={input.required} />}
+                      control={<Checkbox required={input.required} checked={object && object[input.key]}/>}
                       {...register(input.key)}
                       label={
                         <Typography color={errors[input.key] ? 'error' : 'inherit'}>
@@ -133,12 +139,28 @@ const FormCmp: React.FC<FormCmpInterface> = ({ title, formInputs, formSchema, on
                     </FormHelperText>
                   </FormGroup>
                 </Grid>
+              case 'single-date':
+                return <Grid item xs={4}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs} {...register(input.key)}>
+                    <DatePicker
+                      label={input.label}
+                      format="DD/MM/YYYY"
+                      minDate={input.minDate ? input.minDate === "" ? dayjs() : dayjs(input.minDate) : null}
+                      onChange={(value:any) => handleChange(input.key, value.valueOf())}
+                    />
+                    <FormHelperText error={!!errors[input.key]}>
+                      {`${errors[input.key] ? errors[input.key]?.message : ''}`}
+                    </FormHelperText>
+                  </LocalizationProvider>
+                </Grid>
 
               default:
                 break;
             }
           })}
         </Grid>
+
+        <ButtonCmp title="reset" onClick={() => reset()} />
 
         <ButtonCmp title="Invia" type="submit" />
       </Box>

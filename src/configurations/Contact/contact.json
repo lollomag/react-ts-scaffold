@@ -83,6 +83,18 @@
       "component": "checkbox",
       "label": "Iscrizione newsletter",
       "required": false
+    },
+    {
+      "key": "birthday",
+      "component": "single-date",
+      "label": "Data di nascita",
+      "required": true
+    },
+    {
+      "key": "range",
+      "component": "range-date",
+      "labelStart": "Check in",
+      "labelEnd": "Check out"
     }
   ]
 }

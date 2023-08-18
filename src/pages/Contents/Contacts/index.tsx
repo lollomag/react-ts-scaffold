@@ -7,7 +7,7 @@ import FormCmp from "@components/Form";
 const Contacts = () => {
 
   const submitForm = (formObject:any) => {
-    console.log('form page', formObject);
+    console.log('Object to send -->', formObject);
   }
 
   return (
